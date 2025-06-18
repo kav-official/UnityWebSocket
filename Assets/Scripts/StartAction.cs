@@ -3,11 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using TMPro;
-
+using Cysharp.Threading.Tasks;
+using Net;
+using System.Linq;
 
 public class StartAction : MonoBehaviour
 {
     public HelpFunctions help;
+    public buttonBottom betting;
     public SettingSlideToggle setting;
     public TableManageMent tableManager;
     public Table1 table1;
@@ -88,8 +91,13 @@ public class StartAction : MonoBehaviour
     public float scaleSpeed  = 1.5f;
     public float scaleAmount = 0.2f;
     private Vector3 originalScale;
-    void Start()
+    public WebSocketCustom _webSocket;
+    private async void Start()
     {
+        Debug.Log("🟡 Before Init");
+        await NetManager.Instance.Init();
+        Debug.Log("🟢 NetManager initialization");
+
         if (_buttonShowRolling != null)
             originalScale = _buttonShowRolling.transform.localScale;
 
@@ -104,145 +112,201 @@ public class StartAction : MonoBehaviour
         _mainBall.gameObject.SetActive(false);
         _extraMainBallBackground.gameObject.SetActive(false);
     }
+    bool tester = true;
+    private float _currentBalance = 1000;
+    private float _betAmount = 0;
+    List<BettingReq.Bet> betList = new List<BettingReq.Bet>();
+    long drawNumber = 2025000105;
     private int numberForExtraBall;
     public void BuyExtraBall()
     {
-        int currentBallCount = 0;
-        _objectMainExtraBall.gameObject.SetActive(true);
-        foreach (Transform ballPoint in extraBallPoint)
-        {
-            if (ballPoint.childCount > 0)
-            {
-                currentBallCount++;
-            }
-        }
-        if (currentBallCount >= extraBallPoint.Count)
-        {
-            _objectMainExtraBall.gameObject.SetActive(false);
-            _extraMainBallBackground.gameObject.SetActive(false);
-            buttonBuyExtra.gameObject.SetActive(false);
-            help.ResetBall();
-            setting.HidePossiblePanel();
+        //--Websocket Test
+        NetManager.Instance.SendBuyBall(2025000012);
+        //-- End
+        // int currentBallCount = 0;
+        // _objectMainExtraBall.gameObject.SetActive(true);
+        // foreach (Transform ballPoint in extraBallPoint)
+        // {
+        //     if (ballPoint.childCount > 0)
+        //     {
+        //         currentBallCount++;
+        //     }
+        // }
+        // if (currentBallCount >= extraBallPoint.Count)
+        // {
+        //     _objectMainExtraBall.gameObject.SetActive(false);
+        //     _extraMainBallBackground.gameObject.SetActive(false);
+        //     buttonBuyExtra.gameObject.SetActive(false);
+        //     help.ResetBall();
+        //     setting.HidePossiblePanel();
 
-            Debug.Log("All 10 balls are already created.");
-            return;
-        }
+        //     Debug.Log("All 10 balls are already created.");
+        //     return;
+        // }
 
-        newExtraBallNumber = randomNumber.GenerateRandomNumbers(1, 1, 99)[0];
-        foreach (Transform ballPoint in extraBallPoint)
-        {
-            if (ballPoint.childCount == 0)
-            {
+        // newExtraBallNumber = randomNumber.GenerateRandomNumbers(1, 1, 99)[0];
+        // foreach (Transform ballPoint in extraBallPoint)
+        // {
+        //     if (ballPoint.childCount == 0)
+        //     {
 
-                GameObject ball = Instantiate(_extraBallPrefab, ballPoint);
-                _spawnExtraBall.Add(ball);
-                ball.transform.localPosition = Vector3.zero;
-                ball.transform.localRotation = Quaternion.identity;
-                ball.transform.localScale = Vector3.one;
+        //         GameObject ball = Instantiate(_extraBallPrefab, ballPoint);
+        //         _spawnExtraBall.Add(ball);
+        //         ball.transform.localPosition = Vector3.zero;
+        //         ball.transform.localRotation = Quaternion.identity;
+        //         ball.transform.localScale = Vector3.one;
 
-                _childBalls     = ball.GetComponentInChildren<Image>();
-                _imageExtraBall = ball.GetComponent<Image>();
-                if (newExtraBallNumber <= 20)
-                {
-                    _imageExtraBall.sprite = _spriteRed;
-                }
-                else if (newExtraBallNumber <= 35)
-                {
-                    _imageExtraBall.sprite = _spriteBlue;
-                }
-                else if (newExtraBallNumber <= 59)
-                {
-                    _imageExtraBall.sprite = _spriteGreen;
-                }
-                else if (newExtraBallNumber <= 70)
-                {
-                    _imageExtraBall.sprite = _spriteYellow;
-                }
-                else
-                {
-                    _imageExtraBall.sprite = _spritePink;
-                }
-                // -- Main balls hot balls number
-                int number = newExtraBallNumber;
-                if (number >= 10)
-                {
-                    int tens = number / 10;
-                    int ones = number % 10;
+        //         _childBalls     = ball.GetComponentInChildren<Image>();
+        //         _imageExtraBall = ball.GetComponent<Image>();
+        //         if (newExtraBallNumber <= 20)
+        //         {
+        //             _imageExtraBall.sprite = _spriteRed;
+        //         }
+        //         else if (newExtraBallNumber <= 35)
+        //         {
+        //             _imageExtraBall.sprite = _spriteBlue;
+        //         }
+        //         else if (newExtraBallNumber <= 59)
+        //         {
+        //             _imageExtraBall.sprite = _spriteGreen;
+        //         }
+        //         else if (newExtraBallNumber <= 70)
+        //         {
+        //             _imageExtraBall.sprite = _spriteYellow;
+        //         }
+        //         else
+        //         {
+        //             _imageExtraBall.sprite = _spritePink;
+        //         }
+        //         // -- Main balls hot balls number
+        //         int number = newExtraBallNumber;
+        //         if (number >= 10)
+        //         {
+        //             int tens = number / 10;
+        //             int ones = number % 10;
 
-                    digit_main_extra_1.gameObject.SetActive(true);
-                    digit_main_extra_1.sprite = sprite_balls_Numer[tens];
+        //             digit_main_extra_1.gameObject.SetActive(true);
+        //             digit_main_extra_1.sprite = sprite_balls_Numer[tens];
 
-                    digit_main_extra_2.gameObject.SetActive(true);
-                    digit_main_extra_2.sprite = sprite_balls_Numer[ones];
-                }
-                else
-                {
-                    digit_main_extra_1.gameObject.SetActive(false);
-                    digit_main_extra_2.gameObject.SetActive(true);
+        //             digit_main_extra_2.gameObject.SetActive(true);
+        //             digit_main_extra_2.sprite = sprite_balls_Numer[ones];
+        //         }
+        //         else
+        //         {
+        //             digit_main_extra_1.gameObject.SetActive(false);
+        //             digit_main_extra_2.gameObject.SetActive(true);
 
-                    digit_main_extra_2.sprite = sprite_balls_Numer[number];
-                }
-                // -- End
-                _imageMainExtraBall.sprite  = _childBalls.sprite;
-                CanvasGroup cg              = ballPoint.GetComponent<CanvasGroup>();
+        //             digit_main_extra_2.sprite = sprite_balls_Numer[number];
+        //         }
+        //         // -- End
+        //         _imageMainExtraBall.sprite  = _childBalls.sprite;
+        //         CanvasGroup cg              = ballPoint.GetComponent<CanvasGroup>();
 
-                if (cg != null)
-                {
-                    cg.enabled = false;
-                }
-                HotnewBall script = ballPoint.GetComponent<HotnewBall>();
-                if (script != null)
-                {
-                    script.enabled = false;
-                }
-                //-- Hot ball number
-                Image[] digitImages = ball.GetComponentsInChildren<Image>();
-                if (digitImages.Length >= 3)
-                {
-                    digit_hot_ball_1 = digitImages[1]; 
-                    digit_hot_ball_2 = digitImages[2];
-                }
-                if (number >= 10)
-                {
-                    int tens = number / 10;
-                    int ones = number % 10;
+        //         if (cg != null)
+        //         {
+        //             cg.enabled = false;
+        //         }
+        //         HotnewBall script = ballPoint.GetComponent<HotnewBall>();
+        //         if (script != null)
+        //         {
+        //             script.enabled = false;
+        //         }
+        //         //-- Hot ball number
+        //         Image[] digitImages = ball.GetComponentsInChildren<Image>();
+        //         if (digitImages.Length >= 3)
+        //         {
+        //             digit_hot_ball_1 = digitImages[1]; 
+        //             digit_hot_ball_2 = digitImages[2];
+        //         }
+        //         if (number >= 10)
+        //         {
+        //             int tens = number / 10;
+        //             int ones = number % 10;
 
-                    digit_hot_ball_1.gameObject.SetActive(true);
-                    digit_hot_ball_1.sprite   = sprite_balls_Numer[tens];
+        //             digit_hot_ball_1.gameObject.SetActive(true);
+        //             digit_hot_ball_1.sprite   = sprite_balls_Numer[tens];
 
-                    digit_hot_ball_2.gameObject.SetActive(true);
-                    digit_hot_ball_2.sprite   = sprite_balls_Numer[ones];
-                }
-                else
-                {
-                    digit_hot_ball_1.gameObject.SetActive(false);
-                    digit_hot_ball_2.gameObject.SetActive(true);
-                    digit_hot_ball_2.sprite = sprite_balls_Numer[number];
-                }
-                //-- End hot ball
-                Debug.Log("Created extra ball:" + newExtraBallNumber);
+        //             digit_hot_ball_2.gameObject.SetActive(true);
+        //             digit_hot_ball_2.sprite   = sprite_balls_Numer[ones];
+        //         }
+        //         else
+        //         {
+        //             digit_hot_ball_1.gameObject.SetActive(false);
+        //             digit_hot_ball_2.gameObject.SetActive(true);
+        //             digit_hot_ball_2.sprite = sprite_balls_Numer[number];
+        //         }
+        //         //-- End hot ball
+        //         Debug.Log("Created extra ball:" + newExtraBallNumber);
 
-                StartCoroutine(buySuccess());
-                IEnumerator buySuccess()
-                {
-                    _extraMainBallBackground.gameObject.SetActive(false);
-                    yield return new WaitForSeconds(1);
-                    _extraMainBallBackground.gameObject.SetActive(true);
-                    _objectMainExtraBall.gameObject.SetActive(false);
-                }
-                help.ResetBall();
-                return;
-            }
-        }
+        //         StartCoroutine(buySuccess());
+        //         IEnumerator buySuccess()
+        //         {
+        //             _extraMainBallBackground.gameObject.SetActive(false);
+        //             yield return new WaitForSeconds(1);
+        //             _extraMainBallBackground.gameObject.SetActive(true);
+        //             _objectMainExtraBall.gameObject.SetActive(false);
+        //         }
+        //         help.ResetBall();
+        //         return;
+        //     }
+        // }
 
     }
+    
+    public void onCLickLogin()
+    {
+        string AccountID = "116";
+        string GameID = "5000105";
+        string Token = "";
 
+        NetManager.Instance.SendLoginReq(AccountID, GameID, Token);
+    }
+
+
+    public void onCLickInitialize()
+    {
+        NetManager.Instance.SendInitDataReq();
+
+    }
+    void ShowDrawNumber()
+    {
+        var data = NetManager.Instance.GetResponseData<SyncIntialRspMsg>("SYNC_INTIAL");
+
+        if (data != null)
+        {
+            Debug.Log("🎯 Draw number is: " + data.cur_draw_num);
+        }
+        else
+        {
+            Debug.LogWarning("No SyncIntialRsp data yet.");
+        }
+    }
     public void StartSpawn()
     {
+        // ShowDrawNumber();
         StartCoroutine(spawnBalls());
         isStartGame = !isStartGame;
         _mainBall.gameObject.SetActive(true);
 
+        tester = !tester;
+        if (tester)
+        {
+            _currentBalance -= betting._totalBetAmount;
+            betting.textCurrentBalance.text = _currentBalance.ToString();
+        }
+        else
+        {
+            _currentBalance +=betting._totalBetAmount;
+            betting.textCurrentBalance.text = _currentBalance.ToString();
+        }
+        if (betting._totalBetAmount > 0)
+        {
+            _betAmount = betting._totalBetAmount;
+            betList.Add(new BettingReq.Bet { BetAmount = 500 });
+            betList.Add(new BettingReq.Bet { BetAmount = 1000 });
+        }
+        NetManager.Instance.SendBetReq(drawNumber, betList);
+    }
         IEnumerator spawnBalls()
         {
             ballNumbers = randomNumber.GenerateRandomNumbers(30, 1, 99);
@@ -427,7 +491,7 @@ public class StartAction : MonoBehaviour
             setting.ShowPossiblePanel();
             table1.CheckWinline();
         }
-    }
+    
     IEnumerator SpawnFallingStar()
     {
         if (currentStarIndex >= startTargets.Count) yield break;

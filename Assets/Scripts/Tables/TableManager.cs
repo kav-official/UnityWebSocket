@@ -118,6 +118,7 @@ public class TableManageMent : MonoBehaviour
     public Transform[] allToggleTargetsSet3;
     public Transform[] TargetsSet;
     public TextMeshProUGUI textTableCard;
+    public int _cardNumber = 0;
    
     void Start()
     {
@@ -953,6 +954,8 @@ public class TableManageMent : MonoBehaviour
     public void onClickSettableNumber(int countTable)
     {
         iSettedTable = true;
+        _cardNumber = countTable;
+
         if (countTable <= 4)
         {
             if (countTable == 1)
