@@ -114,6 +114,7 @@ public class SetKaPianDataRspMsg
     public string status;
     public int currentPainCount;
 }
+
 public class QueryBetResultResponseMsg
 {
     public class Ticket

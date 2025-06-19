@@ -22,9 +22,12 @@ namespace Net
         public const string SYNCTIME = "sync_time_response";
         public const string SYNC_INTIAL = "initial_data_response";
         public const string BET_RSP = "betting_rsp_item";
-        public const string QUERY_KAIJIANG_RSP = "stop_betting_info";
-        public const string QUERY_RESULT_RSP = "lottery_inform";
-        public const string SLOT_INFO_RSP = "slot_info";
+        public const string BUYBALL_RSP = "buyball_rsp_item";
+
+        // public const string QUERY_KAIJIANG_RSP = "stop_betting_info";
+        // public const string QUERY_RESULT_RSP = "lottery_inform";
+        // public const string SLOT_INFO_RSP = "slot_info";
+
     }
 
     public class NetManager : Singleton<NetManager>
@@ -60,9 +63,7 @@ namespace Net
             {RspType.SYNCTIME,typeof(SyncTimeRspMsg)},
             {RspType.SYNC_INTIAL,typeof(SyncIntialRspMsg)},
             {RspType.BET_RSP,typeof(BettingRspMsg)},
-            {RspType.QUERY_KAIJIANG_RSP,typeof(QueryRsponeMsg)},
-            {RspType.QUERY_RESULT_RSP,typeof(QueryBetResultResponseMsg)},
-            {RspType.SLOT_INFO_RSP,typeof(BettingRspMsg)}
+            {RspType.BUYBALL_RSP,typeof(BuyBallRspMsg)},
         };
         private void InitWebsocketCallback()
         {
@@ -131,7 +132,6 @@ namespace Net
         {
             var request = new SyncTimeRequest();
             _webSocket.SendMsg(request);
-
         }
         //初始化数据/Initialize Data
         public void SendInitDataReq()
@@ -140,7 +140,6 @@ namespace Net
             _webSocket.SendMsg(request);
         }
         //---
-
         public void SendQueryReq(long index)
         {
             var req = new QueryRequest();
@@ -198,15 +197,5 @@ namespace Net
         {
             return _webSocket != null && _webSocket.IsConnected();
         }
-        public T GetResponseData<T>(string rspType) where T : class
-        {
-            if (_rspTag.TryGetValue(rspType, out var obj))
-            {
-                return obj as T;
-            }
-            return null;
-        }
-
     }
-
 }

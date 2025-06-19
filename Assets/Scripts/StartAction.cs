@@ -57,10 +57,6 @@ public class StartAction : MonoBehaviour
     public Button buttonChangeBalls;
     [Header("Text Content")]
     public TextMeshProUGUI textMainBallEffect;
-    // public TextMeshProUGUI textMainBall;
-    // public TextMeshProUGUI textBallNumber;
-    // public TextMeshProUGUI textExtraballNumber;
-    // public TextMeshProUGUI _textExtraMainBall;
     [Header("GameObject Content")]
     public GameObject _mainBallExtraEffectPoint;
     public GameObject _extraMainBallBackground;
@@ -116,12 +112,12 @@ public class StartAction : MonoBehaviour
     private float _currentBalance = 1000;
     private float _betAmount = 0;
     List<BettingReq.Bet> betList = new List<BettingReq.Bet>();
-    long drawNumber = 2025000105;
+    long drawNumber = 2025000030;
     private int numberForExtraBall;
     public void BuyExtraBall()
     {
         //--Websocket Test
-        NetManager.Instance.SendBuyBall(2025000012);
+        NetManager.Instance.SendBuyBall(2025000030);
         //-- End
         // int currentBallCount = 0;
         // _objectMainExtraBall.gameObject.SetActive(true);
@@ -266,27 +262,13 @@ public class StartAction : MonoBehaviour
     public void onCLickInitialize()
     {
         NetManager.Instance.SendInitDataReq();
-
     }
-    void ShowDrawNumber()
-    {
-        var data = NetManager.Instance.GetResponseData<SyncIntialRspMsg>("SYNC_INTIAL");
 
-        if (data != null)
-        {
-            Debug.Log("🎯 Draw number is: " + data.cur_draw_num);
-        }
-        else
-        {
-            Debug.LogWarning("No SyncIntialRsp data yet.");
-        }
-    }
     public void StartSpawn()
     {
-        // ShowDrawNumber();
-        StartCoroutine(spawnBalls());
-        isStartGame = !isStartGame;
-        _mainBall.gameObject.SetActive(true);
+        // StartCoroutine(spawnBalls());
+        // isStartGame = !isStartGame;
+        // _mainBall.gameObject.SetActive(true);
 
         tester = !tester;
         if (tester)
